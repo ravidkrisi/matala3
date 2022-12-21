@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <arpa/inet.h>
+#include <netinet/tcp.h>
 
 #define SIZE 1024
 
@@ -90,25 +91,37 @@ int main()
    fseek(part1,0,SEEK_SET);
    fseek(part2,0,SEEK_SET);
 
+    //set the cc algorithm to CUBIC 
+    if (setsockopt(sockfd, IPPROTO_TCP, TCP_CONGESTION, "cubic", 5) < 0)
+    {
+      printf("set socket error from client\n");
+    }
 
-    //send the firsr part of the file 
+    //send the first part of the file 
     send_file(part1, sockfd);
     printf("[+]File data sent successfully.\n");
 
-    // int n;
-    // char buffer[SIZE];
-    // while(1)
-    // {
-    //     n=recv(sockfd, buffer, SIZE, 0);
+    ////receive the authentatication from the receiver
+    int n;
+    char buffer[SIZE];
+    while(1)
+    {
+        n=recv(sockfd, buffer, SIZE, 0);
         
-    //     if(n<=0)
-    //     {
-    //         break;
-    //     }
+        if(n<=0)
+        {
+            break;
+        }
 
-    //     printf("%s", buffer);
-    //     bzero(buffer, SIZE);
-    // }
+        printf("%s", buffer);
+        bzero(buffer, SIZE);
+    }
+
+    // set the cc algorithm to RENO 
+    if (setsockopt(sockfd, IPPROTO_TCP, TCP_CONGESTION, "reno", 4) < 0)
+        {
+            printf("set socket error from client\n");
+        }
 
     printf("[+]Closing the connection.\n");
     close(sockfd);

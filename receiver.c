@@ -3,6 +3,8 @@
 #include <unistd.h>
 #include <string.h>
 #include <arpa/inet.h>
+#include <sys/time.h>
+
 
 #define SIZE 1024
 
@@ -70,15 +72,41 @@ int main()
 
     addr_size=sizeof(new_addr);
     new_sock = accept(sockfd, (struct sockaddr*)&new_addr, &addr_size);
+
+    //set var to start and stop time. record time for start time
+    struct timeval stop, start;
+    gettimeofday(&start, NULL);
+    int n;
+
+    //receive part 1 of the file
     write_file(new_sock);
     printf("[+]Data wrriten successfully.\n");
 
-    // char pass[]="110100000001100111100110";
-    // if(send(new_sock, pass, sizeof(pass), 0)==-1)
-    // {
-    //     perror("error in sending authentication");
-    // }
+    //record time for stop time 
+    gettimeofday(&stop, NULL);
 
+    //print message of the time it took to receive the first file
+    printf("took %lu us\n", (stop.tv_sec - start.tv_sec) * 10000 + stop.tv_usec - start.tv_usec);
+    
+    //send authentication
+    char pass[]="110100000001100111100110";
+    if(send(new_sock, pass, sizeof(pass), 0)==-1)
+    {
+        perror("error in sending authentication");
+    }
+
+    //record time of start time for sencond part of the file 
+    gettimeofday(&start, NULL);
+
+    //receiving the sencond part of the file 
+    write_file(new_sock);
+
+
+    //record stop time of the sencond part of the file 
+    gettimeofday(&stop, NULL);
+
+    //print the time it took to receive the second part of the file
+    printf("took %lu us\n", (stop.tv_sec - start.tv_sec) * 10000 + stop.tv_usec - start.tv_usec);
 
     return 0;
 }   
