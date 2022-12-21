@@ -4,6 +4,8 @@
 #include <string.h>
 #include <arpa/inet.h>
 #include <netinet/tcp.h>
+
+#define AUTH_SIZE 25
 #define SIZE 2120000
 
 //send fucntion gets file and send it to the reciever
@@ -84,13 +86,14 @@ printf("[+]File1 data sent successfully.\n");
 
 //receive authentication from the receiver
 // char message[]= "110100000001100111100110";
-// char buffer[SIZE]={'\0'};
+char buffer[SIZE]={'\0'};
 // int n=0;
 // while(strcmp(buffer, message)!=0)
 // {
 //     int n=recv(sockfd, buffer, SIZE, 0);
 // }
-// printf("received auth\n");
+int n=recv(sockfd, buffer, AUTH_SIZE, 0);
+printf("received auth: %s\n", buffer);
 
 // set the cc algorithm to RENO 
 if (setsockopt(sockfd, IPPROTO_TCP, TCP_CONGESTION, "reno", 4) < 0)

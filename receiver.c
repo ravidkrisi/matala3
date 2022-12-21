@@ -3,6 +3,9 @@
 #include <string.h>
 #include <arpa/inet.h>
 #include <sys/time.h>
+#include<unistd.h>
+
+#define AUTH_SIZE 25
 #define SIZE 2120000
 
 //a func that gets a the clientsocket and prints the file it gets from the sender
@@ -75,7 +78,7 @@ printf("\n[+]Data1 written in the file successfully.\n");
 
 
 //set authentication in a string 
-// char message[] = "110100000001100111100110";
+char message[] = "110100000001100111100110";
 
 //send the authentication to the server
 // if (send(sockfd, message, sizeof(message), 0) == -1) 
@@ -83,6 +86,7 @@ printf("\n[+]Data1 written in the file successfully.\n");
 // perror("[-]Error in sending file.");
 // exit(1);
 // }
+send(new_sock, message, AUTH_SIZE, 0);
 
 //record start time part2
 gettimeofday(&start, NULL);
