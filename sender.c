@@ -63,7 +63,6 @@ server_addr.sin_addr.s_addr = inet_addr(ip);
         arr[i]=c;
         i++;
     }
-   printf("%s", arr);
 //create a connection with the receiver
 e = connect(sockfd, (struct sockaddr*)&server_addr, sizeof(server_addr));
 if(e == -1) {
@@ -77,16 +76,15 @@ printf("[+]Connected to Server.\n");
 send_file(arr, sockfd);
 printf("[+]File1 data sent successfully.\n");
 
-// //receive authentication from the receiver
-// char buffer[SIZE]={'\0'};
-// int n=recv(sockfd, buffer, SIZE, 0);
-// if(n<=0)
-// {
-//     printf("[+]failed to get authentication");
-//     exit(1);
-// }
-// printf("%s", buffer);
-
+//receive authentication from the receiver
+char message[]= "110100000001100111100110";
+char buffer[SIZE]={'\0'};
+int n=0;
+while(strcmp(buffer, message)!=0)
+{
+    int n=recv(sockfd, buffer, SIZE, 0);
+}
+printf("received auth\n");
 
 //send the second part of the file 
 send_file(arr+length1, sockfd);

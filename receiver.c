@@ -60,18 +60,18 @@ new_sock = accept(sockfd, (struct sockaddr*)&new_addr, &addr_size);
 
 //gets the first part of the file 
 write_file(new_sock);
-printf("[+]Data1 written in the file successfully.\n");
+printf("\n[+]Data1 written in the file successfully.\n");
 
 
-// set authentication in a string 
-// char *message = "110100000001100111100110\n";
-// int messageLen = strlen(message) + 1;
+//set authentication in a string 
+char message[] = "110100000001100111100110";
 
-// //send the authentication to the server
-// if (send(sockfd, message, sizeof(message), 0) == -1) {
-// perror("[-]Error in sending file.");
-// exit(1);
-// }
+//send the authentication to the server
+if (send(sockfd, message, sizeof(message), 0) == -1) 
+{
+perror("[-]Error in sending file.");
+exit(1);
+}
 
 //gets the second part of the file
 write_file(new_sock);
