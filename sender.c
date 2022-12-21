@@ -31,7 +31,6 @@ int main()
 
     int sockfd;
     struct sockaddr_in server_addr;
-    FILE *fp;
     
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if(sockfd < 0)
@@ -55,7 +54,7 @@ int main()
 
     //read the file
     FILE *file;
-    file = fopen("ex3", "r");
+    file = fopen("ex3.txt", "r");
     if(file == NULL)
     {
         printf("couldnt load the file");
@@ -91,7 +90,7 @@ int main()
    fseek(part1,0,SEEK_SET);
    fseek(part2,0,SEEK_SET);
 
-   
+
     //send the firsr part of the file 
     send_file(part1, sockfd);
     printf("[+]File data sent successfully.\n");
