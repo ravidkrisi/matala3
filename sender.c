@@ -53,14 +53,47 @@ int main()
     }
     printf("[+]Connected to Server.\n");
 
-    fp = fopen("ex3.txt", "r");
-    if (fp==NULL)
+    //read the file
+    FILE *file;
+    file = fopen("ex3", "r");
+    if(file == NULL)
     {
-        perror("[-]Error in reading file.");
-        exit(1);
+        printf("couldnt load the file");
     }
 
-    send_file(fp, sockfd);
+    //split the file into 2 equal size files 
+    fseek(file,0,SEEK_END);
+    int length = ftell(file);
+    fseek(file,0,SEEK_SET);
+
+    int length1 = length/2;
+    int length2 = length-length1;
+
+    FILE *part1, *part2;
+    part1 = fopen("part1.txt", "w+");
+    part2 = fopen("part2.txt", "w+");
+
+    char c;
+    int i =0;
+    while((c=fgetc(file))!=EOF)
+    {
+        if(i<=length1)
+        {
+            fprintf(part1,"%c", c);
+        }
+        else
+        {
+            fprintf(part2,"%c", c);
+        }
+        i++;
+    }
+   
+   fseek(part1,0,SEEK_SET);
+   fseek(part2,0,SEEK_SET);
+
+   
+    //send the firsr part of the file 
+    send_file(part1, sockfd);
     printf("[+]File data sent successfully.\n");
 
     // int n;
