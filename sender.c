@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <arpa/inet.h>
+#include <netinet/tcp.h>
 #define SIZE 2120000
 
 //send fucntion gets file and send it to the reciever
@@ -71,20 +72,31 @@ exit(1);
 }
 printf("[+]Connected to Server.\n");
 
+//set the cc algorithm to CUBIC 
+if (setsockopt(sockfd, IPPROTO_TCP, TCP_CONGESTION, "cubic", 5) < 0)
+{
+    printf("set socket error from client\n");
+}
 
 //send the first part of the file
 send_file(arr, sockfd);
 printf("[+]File1 data sent successfully.\n");
 
 //receive authentication from the receiver
-char message[]= "110100000001100111100110";
-char buffer[SIZE]={'\0'};
-int n=0;
-while(strcmp(buffer, message)!=0)
+// char message[]= "110100000001100111100110";
+// char buffer[SIZE]={'\0'};
+// int n=0;
+// while(strcmp(buffer, message)!=0)
+// {
+//     int n=recv(sockfd, buffer, SIZE, 0);
+// }
+// printf("received auth\n");
+
+// set the cc algorithm to RENO 
+if (setsockopt(sockfd, IPPROTO_TCP, TCP_CONGESTION, "reno", 4) < 0)
 {
-    int n=recv(sockfd, buffer, SIZE, 0);
+    printf("set socket error from client\n");
 }
-printf("received auth\n");
 
 //send the second part of the file 
 send_file(arr+length1, sockfd);
