@@ -9,23 +9,22 @@
 #define SIZE 2120000
 #define HALF_SIZE 1060001
 
-//send fucntion gets file and send it to the reciever
-void send_file(char arr[SIZE], int sockfd){
+//fucntion gets buffer and send it to the reciever
+void send_file(char arr[HALF_SIZE], int sockfd){
 int n;
-char data[SIZE] = {0};
-// while(fgets(data, SIZE, fp) != NULL) {
-if (send(sockfd, arr, SIZE/2, 0) == -1) 
+char data[HALF_SIZE] = {0};
+if (send(sockfd, arr, HALF_SIZE, 0) == -1) 
 {
     perror("[-]Error in sending file.");
     exit(1);
 }
-bzero(data, SIZE);
+bzero(data, HALF_SIZE);
 }
 
 
 int main(){
 
-
+//create socket to the sender
 char *ip = "127.0.0.1";
 int port = 8082;
 int e;
@@ -57,10 +56,7 @@ fseek(file,0,SEEK_END);
 int length = ftell(file);
 fseek(file,0,SEEK_SET);
 
-//sets the length and the arrays of the 2 parts of the file
-int length1 = length/2;
-int length2 = length-length1;
-
+//sets the arrays of the 2 parts of the file
 
 char arr1[HALF_SIZE] = {'\0'};
 char arr2[HALF_SIZE] = {'\0'};
@@ -72,7 +68,7 @@ int i =0;
 int j=0;
 while((c=fgetc(file))!=EOF)
 {
-    if(i<length1)
+    if(i<HALF_SIZE)
     {
         arr1[i]=c;
         i++;
@@ -92,8 +88,10 @@ exit(1);
 }
 printf("[+]Connected to Server.\n");
 
+//sets vars to the user input and times of run counter
 char user_input='z';
 int times_run=0;
+
 do{
 //set the cc algorithm to CUBIC if times_run is even else to RENO
 if(times_run%2==0)
@@ -136,11 +134,13 @@ while(1)
         break;
     }
 }
+//cheack the validation of the message it received 
 if(strcmp(message, buffer)!=0)
 {
     printf("\nauthentication is not matched\n");
-    exit(1);
+    break;
 }
+//print the authentication from the receiver
 printf("\nreceived auth: %s\n", buffer);
 
 // set the cc algorithm to CUBIC if times_run is even else to RENO
@@ -178,7 +178,9 @@ times_run++;
 }
 while(user_input=='Y');
 
-//closing the connection with receiver 
+//closing the connection with receiver and send an end message 
+char end[50]={'*'};
+send(sockfd, end, 51, 0);
 printf("[+]Closing the connection.\n");
 close(sockfd);
 

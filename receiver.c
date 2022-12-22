@@ -11,29 +11,70 @@
 #define SIZE 2120000
 #define HALF_SIZE 1060001
 
+double times_part1[5]={0};
+double times_part2[5]={0};
+
+//a func that print the times of every run and exit the prog the avg in every run and avg in all runs
+void printtimes(){
+    int i=0;
+    double sum=0;
+    int counter=0;
+    double avg;
+    while(times_part1[i]!=0)
+    {
+        printf("\nfor the %d run part 1 it took %f ms\n", i+1, times_part1[i]);
+        printf("for the %d run part 2 it took %f ms\n", i+1, times_part2[i]);
+        avg=(times_part1[i]+times_part2[i])/2;
+        printf("the average of this run is: %f\n",avg);
+        i++;
+        counter=counter+2;
+        sum=sum+times_part1[i]+times_part2[i];
+    }
+    printf("\n the averge of the total runs is: %f\n",sum/counter);
+    exit(1);
+}
 
 //a func that gets a the clientsocket and prints the file it gets from the sender and stops when the receiver gets the full message it suppused to get
-void write_file(int sockfd)
+void write_file(int sockfd, struct timeval *start)
 {
+//intialize vars for string that end the prog flag to set the start time and sum to count the num of bytes it received
+char end [50]={'*'};
 int sum=0;
 int n;
 char buffer[SIZE];
+int flag=0;
 while(1)
 {
     n = recv(sockfd, buffer, SIZE, 0);
+    //record the start time
+    if(n>0&&flag==0)
+    {
+    gettimeofday(start, NULL);
+    flag++;
+    }
+    //check if we recevied the exit message from the sender
+    if(strcmp(end, buffer)==0)
+    {
+        printtimes();
+    }
+    //zero the buffer for the next recv
     bzero(buffer, SIZE);
     sum=sum+n;
+    //if we received the expected num of bytes break from the while
     if(sum==HALF_SIZE)
-    {
-        break;
+    {   
+    break;
     }
 }
+//print how many bytes we received 
 printf("\nreceived %d bytes from the sender\n", sum);
 }
 
+
+
 int main(){
 
-
+//create receiver socket
 char *ip = "127.0.0.1";
 int port = 8082;
 int e;
@@ -76,21 +117,21 @@ char user_input = 'Z';
 int times_run=0;
 do{
 
-// set vars for time.
+// set vars for time and pointer to start
 struct timeval stop, start;
-gettimeofday(&start, NULL);
+struct timeval *s= &start;
 
-//gets the first part of the file 
-write_file(new_sock);
+//gets the first part of the file and record the start time
+write_file(new_sock, s);
 
 //record stop time part1
 gettimeofday(&stop, NULL);
 
 
-//print the time it took to receive part1
+//save the time it took to receive part one of the current run 
 double t = (stop.tv_sec - start.tv_sec)*1000 + ((double)stop.tv_usec - start.tv_usec)/1000;
-printf("part 1 took %f ms\n", t);
-printf("[+]received data successfully.\n");
+times_part1[times_run]=t;
+
 
 
 // set the cc algorithm to CUBIC if times_run is even else to RENO
@@ -122,35 +163,27 @@ char message[] = "110100000001100111100110";
 //send the authentication to the server
 send(new_sock, message, AUTH_SIZE, 0);
 
-//record start time part2
-gettimeofday(&start, NULL);
 
-//gets the second part of the file
-write_file(new_sock);
+//gets the second part of the file and record the start time
+write_file(new_sock, s);
 
 
 //record stop time part2
 gettimeofday(&stop, NULL);
 
 
-//print time it took to receive part2
+//save the time it took te receive part 2 in the current run
 t = (stop.tv_sec - start.tv_sec)*1000 + ((double)stop.tv_usec - start.tv_usec)/1000;
-printf("part 2 took %f ms\n", t);
-printf("[+]received data successfully.\n");
+times_part2[times_run]=t;
 
-//ask the user for input wheater he want to send the message again
-printf("\nif you want to run the receiver again press 'Y' to close press any key\n");
-scanf(" %c", &user_input);
+
 times_run++;
 
 }
-while(user_input=='Y');
+//check there is still connection fron the sender
+while(new_sock>0);
 
-//closing the connection
-close(new_sock);
-close(sockfd);
-printf("[+]Closing the connection.\n");
-
-
+//print the times it took to receive every part in each run
+printtimes();
 return 0;
 }
