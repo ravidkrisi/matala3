@@ -7,21 +7,23 @@
 
 #define AUTH_SIZE 25
 #define SIZE 2120000
+#define HALF_SIZE 1060001
 
-//a func that gets a the clientsocket and prints the file it gets from the sender
+
+//a func that gets a the clientsocket and prints the file it gets from the sender and stops when the receiver gets the full message it suppused to get
 void write_file(int sockfd)
 {
+int sum=0;
 int n;
 char buffer[SIZE];
-
-n = recv(sockfd, buffer, SIZE, 0);
-// printf("%d\n",n);
-if (n <= 0)
+while(sum<HALF_SIZE)
 {
-    return;
+    n = recv(sockfd, buffer, SIZE, 0);
+    printf("%s", buffer);
+    bzero(buffer, SIZE);
+    sum=sum+n;
 }
-printf("%s", buffer);
-bzero(buffer, SIZE);
+printf("sum is:%d\n", sum);
 }
 
 int main(){
@@ -68,12 +70,16 @@ gettimeofday(&start, NULL);
 
 //gets the first part of the file 
 write_file(new_sock);
+// char buffer1[HALF_SIZE]={'\0'};
+// recv(new_sock, buffer1, HALF_SIZE, 0);
+
 
 //record stop time part1
 gettimeofday(&stop, NULL);
+// printf("%s\n",buffer1);
 
 //print the time it took to receive part1
-printf("\ntook %lu ms\n", (stop.tv_sec - start.tv_sec) * 10000 + (stop.tv_usec - start.tv_usec)/1000);
+printf("\ntook %lu ms\n", (stop.tv_sec - start.tv_sec) * 1000 + (stop.tv_usec - start.tv_usec)/1000);
 printf("\n[+]Data1 written in the file successfully.\n");
 
 
@@ -81,11 +87,6 @@ printf("\n[+]Data1 written in the file successfully.\n");
 char message[] = "110100000001100111100110";
 
 //send the authentication to the server
-// if (send(sockfd, message, sizeof(message), 0) == -1) 
-// {
-// perror("[-]Error in sending file.");
-// exit(1);
-// }
 send(new_sock, message, AUTH_SIZE, 0);
 
 //record start time part2
@@ -93,12 +94,15 @@ gettimeofday(&start, NULL);
 
 //gets the second part of the file
 write_file(new_sock);
+// char buffer2[HALF_SIZE]={'\0'};
+// recv(new_sock, buffer2, HALF_SIZE, 0);
 
 //record stop time part2
 gettimeofday(&stop, NULL);
+// printf("%s", buffer2);
 
 //print time it took to receive part2
-printf("\ntook %lu ms\n", (stop.tv_sec - start.tv_sec) * 10000 + (stop.tv_usec - start.tv_usec)/1000);
+printf("\ntook %lu ms\n", (stop.tv_sec - start.tv_sec) * 1000 + (stop.tv_usec - start.tv_usec)/1000);
 printf("[+]Data2 written in the file successfully.\n");
 
 return 0;

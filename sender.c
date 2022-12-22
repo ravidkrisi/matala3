@@ -7,6 +7,7 @@
 
 #define AUTH_SIZE 25
 #define SIZE 2120000
+#define HALF_SIZE 1060001
 
 //send fucntion gets file and send it to the reciever
 void send_file(char arr[SIZE], int sockfd){
@@ -56,15 +57,30 @@ server_addr.sin_addr.s_addr = inet_addr(ip);
 
     int length1 = length/2;
     int length2 = length-length1;
+    printf("length1: %d\n", length1);
+    printf("length1: %d\n", length2);
 
     char arr[SIZE] = {'\0'};
+    char arr1[HALF_SIZE] = {'\0'};
+    char arr2[HALF_SIZE] = {'\0'};
 
+
+    
     char c;
     int i =0;
+    int j=0;
     while((c=fgetc(file))!=EOF)
     {
-        arr[i]=c;
-        i++;
+        if(i<length1)
+        {
+            arr1[i]=c;
+            i++;
+        }
+        else
+        {
+            arr2[j]=c;
+            j++;
+        }
     }
 //create a connection with the receiver
 e = connect(sockfd, (struct sockaddr*)&server_addr, sizeof(server_addr));
@@ -81,18 +97,23 @@ if (setsockopt(sockfd, IPPROTO_TCP, TCP_CONGESTION, "cubic", 5) < 0)
 }
 
 //send the first part of the file
-send_file(arr, sockfd);
+// send_file(arr, sockfd);
+send(sockfd, arr1, HALF_SIZE, 0);
 printf("[+]File1 data sent successfully.\n");
 
 //receive authentication from the receiver
-// char message[]= "110100000001100111100110";
+char message[]= "110100000001100111100110";
 char buffer[SIZE]={'\0'};
-// int n=0;
-// while(strcmp(buffer, message)!=0)
-// {
-//     int n=recv(sockfd, buffer, SIZE, 0);
-// }
-int n=recv(sockfd, buffer, AUTH_SIZE, 0);
+int n=0;
+while(1)
+{
+    int n=recv(sockfd, buffer, SIZE, 0);
+    if(strcmp(buffer, message)==0)
+    {
+        break;
+    }
+}
+// int n=recv(sockfd, buffer, AUTH_SIZE, 0);
 printf("received auth: %s\n", buffer);
 
 // set the cc algorithm to RENO 
@@ -102,7 +123,8 @@ if (setsockopt(sockfd, IPPROTO_TCP, TCP_CONGESTION, "reno", 4) < 0)
 }
 
 //send the second part of the file 
-send_file(arr+length1, sockfd);
+// send_file(arr+length1, sockfd);
+send(sockfd, arr2, HALF_SIZE, 0);
 printf("[+]File2 data sent successfully.\n");
 
 printf("[+]Closing the connection.\n");
