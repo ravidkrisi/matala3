@@ -19,11 +19,11 @@ char buffer[SIZE];
 while(sum<HALF_SIZE)
 {
     n = recv(sockfd, buffer, SIZE, 0);
-    printf("%s", buffer);
+    // printf("%s", buffer);
     bzero(buffer, SIZE);
     sum=sum+n;
 }
-printf("sum is:%d\n", sum);
+printf("received %d bytes from the sender\n", sum);
 }
 
 int main(){
@@ -70,17 +70,16 @@ gettimeofday(&start, NULL);
 
 //gets the first part of the file 
 write_file(new_sock);
-// char buffer1[HALF_SIZE]={'\0'};
-// recv(new_sock, buffer1, HALF_SIZE, 0);
+
 
 
 //record stop time part1
 gettimeofday(&stop, NULL);
-// printf("%s\n",buffer1);
+
 
 //print the time it took to receive part1
-printf("\ntook %lu ms\n", (stop.tv_sec - start.tv_sec) * 1000 + (stop.tv_usec - start.tv_usec)/1000);
-printf("\n[+]Data1 written in the file successfully.\n");
+printf("\npart 1 took %lu ms\n", (stop.tv_sec - start.tv_sec) * 1000 + (stop.tv_usec - start.tv_usec)/1000);
+printf("[+]received data successfully.\n");
 
 
 //set authentication in a string 
@@ -94,16 +93,15 @@ gettimeofday(&start, NULL);
 
 //gets the second part of the file
 write_file(new_sock);
-// char buffer2[HALF_SIZE]={'\0'};
-// recv(new_sock, buffer2, HALF_SIZE, 0);
+
 
 //record stop time part2
 gettimeofday(&stop, NULL);
-// printf("%s", buffer2);
+
 
 //print time it took to receive part2
-printf("\ntook %lu ms\n", (stop.tv_sec - start.tv_sec) * 1000 + (stop.tv_usec - start.tv_usec)/1000);
-printf("[+]Data2 written in the file successfully.\n");
+printf("\npart 2 took %lu ms\n", (stop.tv_sec - start.tv_sec) * 1000 + (stop.tv_usec - start.tv_usec)/1000);
+printf("[+]received data successfully.\n");
 
 return 0;
 }
